@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drone Telemetry Display - Major Aerospace</title>
+    <style>
+      * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: #0f172a;
+  color: #e5e7eb;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  background: #111827;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #1f2937;
+}
+
+.header h1 {
+  font-size: 1.6rem;
+  color: #60a5fa;
+  letter-spacing: 1px;
+}
+
+.header .status {
+  background: #16a34a;
+  padding: 6px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* Main Container */
+.container {
+  padding: 20px 30px;
+}
+
+/* Timer Section */
+.timer-section {
+  background: #111827;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  border: 1px solid #1f2937;
+}
+
+.timer-section h2 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  color: #9ca3af;
+}
+
+.timer {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #facc15;
+}
+
+.progress-bar {
+  margin-top: 12px;
+  height: 6px;
+  background: #1f2937;
+  border-radius: 3px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  width: 0%;
+}
+
+/* Gauges Layout */
+.gauges-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.gauge-container {
+  background: #111827;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #1f2937;
+  text-align: center;
+}
+
+.gauge-title {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  margin-bottom: 10px;
+}
+
+.gauge {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin: auto;
+}
+
+.gauge-bg {
+  stroke: #1f2937;
+  stroke-width: 14;
+}
+
+.gauge-fill {
+  stroke-width: 14;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.gauge-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.gauge-unit {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 10px;
+}
+
+/* Data Section */
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.data-card {
+  background: #111827;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #1f2937;
+}
+
+.data-card h3 {
+  font-size: 0.9rem;
+  color: #60a5fa;
+  margin-bottom: 15px;
+  letter-spacing: 0.5px;
+}
+
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #1f2937;
+}
+
+.data-row:last-child {
+  border-bottom: none;
+}
+
+.data-label {
+  color: #9ca3af;
+}
+
+.data-value {
+  font-weight: 600;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.8rem;
+  color: #6b7280;
+  border-top: 1px solid #1f2937;
+  margin-top: 30px;
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🚁 Drone Telemetry Monitor</h1>
+      <div class="status">● SYSTEM ACTIVE</div>
+    </div>
+
+    <div class="container">
+      <div class="timer-section">
+        <h2>Mission Time</h2>
+        <div class="timer" id="timer">30</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressBar"></div>
+        </div>
+      </div>
+
+      <div class="gauges-grid">
+        <!-- Altitude Gauge -->
+        <div class="gauge-container">
+          <div class="gauge-title">ALTITUDE</div>
+          <div class="gauge">
+            <svg width="200" height="200">
+              <circle class="gauge-bg" cx="100" cy="100" r="85"></circle>
+              <circle
+                class="gauge-fill"
+                id="altitudeFill"
+                cx="100"
+                cy="100"
+                r="85"
+                style="
+                  stroke: #3b82f6;
+                  stroke-dasharray: 534;
+                  stroke-dashoffset: 534;
+                "
+              ></circle>
+            </svg>
+            <div class="gauge-value" id="altitudeValue">0</div>
+          </div>
+          <div class="gauge-unit">meters (max: 500m)</div>
+        </div>
+
+        <!-- Speed Gauge -->
+        <div class="gauge-container">
+          <div class="gauge-title">SPEED</div>
+          <div class="gauge">
+            <svg width="200" height="200">
+              <circle class="gauge-bg" cx="100" cy="100" r="85"></circle>
+              <circle
+                class="gauge-fill"
+                id="speedFill"
+                cx="100"
+                cy="100"
+                r="85"
+                style="
+                  stroke: #10b981;
+                  stroke-dasharray: 534;
+                  stroke-dashoffset: 534;
+                "
+              ></circle>
+            </svg>
+            <div class="gauge-value" id="speedValue">0</div>
+          </div>
+          <div class="gauge-unit">m/s (max: 20 m/s)</div>
+        </div>
+
+        <!-- Battery Gauge -->
+        <div class="gauge-container">
+          <div class="gauge-title">BATTERY</div>
+          <div class="gauge">
+            <svg width="200" height="200">
+              <circle class="gauge-bg" cx="100" cy="100" r="85"></circle>
+              <circle
+                class="gauge-fill"
+                id="batteryFill"
+                cx="100"
+                cy="100"
+                r="85"
+                style="
+                  stroke: #10b981;
+                  stroke-dasharray: 534;
+                  stroke-dashoffset: 0;
+                "
+              ></circle>
+            </svg>
+            <div class="gauge-value" id="batteryValue">100</div>
+          </div>
+          <div class="gauge-unit">percent</div>
+        </div>
+
+        <!-- Distance Gauge -->
+        <div class="gauge-container">
+          <div class="gauge-title">DISTANCE</div>
+          <div class="gauge">
+            <svg width="200" height="200">
+              <circle class="gauge-bg" cx="100" cy="100" r="85"></circle>
+              <circle
+                class="gauge-fill"
+                id="distanceFill"
+                cx="100"
+                cy="100"
+                r="85"
+                style="
+                  stroke: #f59e0b;
+                  stroke-dasharray: 534;
+                  stroke-dashoffset: 534;
+                "
+              ></circle>
+            </svg>
+            <div class="gauge-value" id="distanceValue">0</div>
+          </div>
+          <div class="gauge-unit">meters traveled</div>
+        </div>
+      </div>
+
+      <div class="data-grid">
+        <!-- GPS Data Card -->
+        <div class="data-card">
+          <h3>📍 GPS COORDINATES</h3>
+          <div class="data-row">
+            <span class="data-label">Latitude:</span>
+            <span class="data-value" id="latitude">0.0000°</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">Longitude:</span>
+            <span class="data-value" id="longitude">0.0000°</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">GPS Fix:</span>
+            <span class="data-value good" id="gpsFix">3D FIX</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">Satellites:</span>
+            <span class="data-value" id="satellites">12</span>
+          </div>
+        </div>
+
+        <!-- System Status Card -->
+        <div class="data-card">
+          <h3>⚡ SYSTEM STATUS</h3>
+          <div class="data-row">
+            <span class="data-label">Voltage:</span>
+            <span class="data-value" id="voltage">12.6V</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">Current:</span>
+            <span class="data-value" id="current">5.2A</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">Temperature:</span>
+            <span class="data-value" id="temperature">25°C</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">Flight Mode:</span>
+            <span class="data-value good" id="flightMode">STABILIZE</span>
+          </div>
+        </div>
+
+        <!-- Flight Data Card -->
+        <div class="data-card">
+          <h3>✈️ FLIGHT DATA</h3>
+          <div class="data-row">
+            <span class="data-label">Heading:</span>
+            <span class="data-value" id="heading">0°</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">Pitch:</span>
+            <span class="data-value" id="pitch">0°</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">Roll:</span>
+            <span class="data-value" id="roll">0°</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">Vertical Speed:</span>
+            <span class="data-value" id="verticalSpeed">0.0 m/s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>Major Aerospace - Drone Telemetry System v1.0</p>
+      <p>Simulated telemetry data for demonstration purposes</p>
+    </div>
+
+    <script>
+      // Configuration
+      const MAX_ALTITUDE = 500; // meters
+      const MAX_SPEED = 20; // m/s
+      const MAX_DISTANCE = 1000; // meters
+      const TOTAL_TIME = 30; // seconds
+      const UPDATE_INTERVAL = 1000; // ms
+
+      // Starting GPS coordinates (example: somewhere in India)
+      const START_LAT = 28.6139;
+      const START_LON = 77.209;
+
+      // State
+      let currentTime = TOTAL_TIME;
+      let altitude = 0;
+      let speed = 0;
+      let battery = 100;
+      let distance = 0;
+      let latitude = START_LAT;
+      let longitude = START_LON;
+
+      // Utility function to update gauge
+      function updateGauge(
+        elementId,
+        value,
+        maxValue,
+        warningThreshold = null,
+      ) {
+        const percentage = (value / maxValue) * 100;
+        const circumference = 2 * Math.PI * 85;
+        const offset = circumference - (percentage / 100) * circumference;
+
+        const fillElement = document.getElementById(elementId);
+        fillElement.style.strokeDashoffset = offset;
+
+        // Change color based on value
+        if (warningThreshold && value < warningThreshold) {
+          fillElement.style.stroke = "#ef4444"; // red
+        } else if (elementId === "batteryFill") {
+          if (percentage > 50) {
+            fillElement.style.stroke = "#10b981"; // green
+          } else if (percentage > 20) {
+            fillElement.style.stroke = "#f59e0b"; // orange
+          } else {
+            fillElement.style.stroke = "#ef4444"; // red
+          }
+        }
+      }
+
+      // Generate realistic telemetry data
+      function generateTelemetryData(elapsedTime) {
+        const progress = elapsedTime / TOTAL_TIME;
+
+        // Altitude - climb to peak then descend
+        if (progress < 0.5) {
+          altitude = MAX_ALTITUDE * (progress * 2);
+        } else {
+          altitude = MAX_ALTITUDE * (2 - progress * 2);
+        }
+
+        // Speed - varies throughout flight
+        speed =
+          MAX_SPEED * 0.5 * (1 + Math.sin(progress * Math.PI * 4)) +
+          (Math.random() - 0.5) * 2;
+        speed = Math.max(0, Math.min(MAX_SPEED, speed));
+
+        // Battery - gradual decrease
+        battery = 100 - progress * 25 - Math.random() * 2;
+        battery = Math.max(0, battery);
+
+        // Distance - cumulative
+        distance += speed * 1; // 1 second interval
+        distance = Math.min(MAX_DISTANCE, distance);
+
+        // GPS coordinates - simulate movement
+        latitude += (Math.random() - 0.5) * 0.0001;
+        longitude += (Math.random() - 0.5) * 0.0001;
+
+        // System data
+        const voltage = 12.6 - progress * 1.2 + (Math.random() - 0.5) * 0.2;
+        const current = 3 + speed * 0.3 + (Math.random() - 0.5) * 1;
+        const temperature = 25 + progress * 10 + (Math.random() - 0.5) * 3;
+        const satellites = 10 + Math.floor(Math.random() * 4);
+
+        // Attitude data
+        const heading = (elapsedTime * 12) % 360;
+        const pitch = Math.sin(progress * Math.PI * 2) * 15;
+        const roll = Math.cos(progress * Math.PI * 3) * 10;
+        const verticalSpeed = (Math.random() - 0.5) * 4;
+
+        return {
+          altitude,
+          speed,
+          battery,
+          distance,
+          latitude,
+          longitude,
+          voltage,
+          current,
+          temperature,
+          satellites,
+          heading,
+          pitch,
+          roll,
+          verticalSpeed,
+        };
+      }
+
+      // Update display
+      function updateDisplay(data) {
+        // Update gauges
+        updateGauge("altitudeFill", data.altitude, MAX_ALTITUDE);
+        updateGauge("speedFill", data.speed, MAX_SPEED);
+        updateGauge("batteryFill", data.battery, 100, 20);
+        updateGauge("distanceFill", data.distance, MAX_DISTANCE);
+
+        // Update gauge values
+        document.getElementById("altitudeValue").textContent = Math.round(
+          data.altitude,
+        );
+        document.getElementById("speedValue").textContent =
+          data.speed.toFixed(1);
+        document.getElementById("batteryValue").textContent = Math.round(
+          data.battery,
+        );
+        document.getElementById("distanceValue").textContent = Math.round(
+          data.distance,
+        );
+
+        // Update GPS data
+        document.getElementById("latitude").textContent =
+          data.latitude.toFixed(6) + "°";
+        document.getElementById("longitude").textContent =
+          data.longitude.toFixed(6) + "°";
+        document.getElementById("satellites").textContent = data.satellites;
+
+        // Update system status
+        document.getElementById("voltage").textContent =
+          data.voltage.toFixed(1) + "V";
+        document.getElementById("current").textContent =
+          data.current.toFixed(1) + "A";
+        document.getElementById("temperature").textContent =
+          Math.round(data.temperature) + "°C";
+
+        // Update flight data
+        document.getElementById("heading").textContent =
+          Math.round(data.heading) + "°";
+        document.getElementById("pitch").textContent =
+          data.pitch.toFixed(1) + "°";
+        document.getElementById("roll").textContent =
+          data.roll.toFixed(1) + "°";
+        document.getElementById("verticalSpeed").textContent =
+          data.verticalSpeed.toFixed(1) + " m/s";
+
+        // Update battery color based on value
+        const batteryElement = document.getElementById("batteryValue");
+        if (data.battery > 50) {
+          batteryElement.style.color = "#10b981";
+        } else if (data.battery > 20) {
+          batteryElement.style.color = "#f59e0b";
+        } else {
+          batteryElement.style.color = "#ef4444";
+        }
+
+        // Update voltage warning
+        const voltageElement = document.getElementById("voltage");
+        if (data.voltage < 11.0) {
+          voltageElement.classList.add("warning");
+        } else {
+          voltageElement.classList.remove("warning");
+        }
+      }
+
+      // Main update loop
+      function updateTelemetry() {
+        if (currentTime > 0) {
+          const elapsedTime = TOTAL_TIME - currentTime;
+          const data = generateTelemetryData(elapsedTime);
+          updateDisplay(data);
+
+          // Update timer
+          document.getElementById("timer").textContent = currentTime;
+
+          // Update progress bar
+          const progressPercent =
+            ((TOTAL_TIME - currentTime) / TOTAL_TIME) * 100;
+          document.getElementById("progressBar").style.width =
+            progressPercent + "%";
+
+          currentTime--;
+          setTimeout(updateTelemetry, UPDATE_INTERVAL);
+        } else {
+          // Mission complete
+          document.getElementById("timer").textContent = "COMPLETE";
+          document.querySelector(".status").textContent = "● MISSION COMPLETE";
+          document.querySelector(".status").style.background = "#6366f1";
+        }
+      }
+
+      // Start telemetry on page load
+      window.addEventListener("load", () => {
+        console.log("Drone Telemetry System Initialized");
+        console.log("Starting 30-second simulation...");
+        updateTelemetry();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,82 @@
+Drone Telemetry Dashboard – Project Explanation
+Overview
+
+For this task, I developed a web-based Drone Telemetry Dashboard that simulates real-time flight data for a drone. The system visually displays key telemetry parameters such as altitude, speed, battery percentage, GPS coordinates, distance traveled, and additional system metrics like voltage, current, temperature, pitch, roll, and heading.
+
+The goal of this project was to recreate a simplified Ground Control Station (GCS) interface similar to professional drone monitoring software, while keeping the design clean, structured, and easy to understand.
+
+What I Built
+
+I created a single-page web application that simulates a 30-second drone flight mission. The interface includes:
+
+Circular telemetry gauges (Altitude, Speed, Battery, Distance)
+
+Live mission timer with progress bar
+
+GPS coordinates display
+
+System status panel (Voltage, Current, Temperature, Flight Mode)
+
+Flight data panel (Heading, Pitch, Roll, Vertical Speed)
+
+Dynamic color indicators for warnings (e.g., low battery or voltage)
+
+The UI was designed to resemble a professional telemetry monitoring system used in aerospace applications.
+
+How It Works
+
+The system runs a simulated flight for 30 seconds. Every 1 second, the telemetry data updates automatically using JavaScript.
+
+Here’s how the logic works:
+
+A timer counts down from 30 seconds.
+
+At each interval:
+
+Altitude increases to a peak and then decreases (simulating takeoff and landing).
+
+Speed varies using a sine wave function combined with small random variations.
+
+Battery gradually decreases over time.
+
+Distance accumulates based on speed.
+
+GPS coordinates shift slightly to simulate movement.
+
+System parameters (voltage, temperature, etc.) adjust dynamically.
+
+The circular gauges are SVG-based and update visually by modifying the stroke-dashoffset property to reflect percentage values.
+
+Colors change automatically for warning conditions (e.g., battery turning red when low).
+
+After 30 seconds, the mission completes and the system status changes to “Mission Complete”.
+
+Tools and Technologies Used
+
+The project was developed using:
+
+HTML5 – For structuring the dashboard layout.
+
+CSS3 – For styling the interface, grid layout, responsiveness, and professional dashboard design.
+
+JavaScript (Vanilla JS) – For telemetry simulation, mathematical calculations, dynamic updates, and DOM manipulation.
+
+SVG (Scalable Vector Graphics) – For building smooth animated circular gauges.
+
+No external libraries or frameworks were used. The entire project runs directly in a browser without requiring additional dependencies.
+
+Key Design Decisions
+
+I used a dark aviation-style theme to reflect real-world drone ground control interfaces.
+
+Circular gauges were chosen to visually represent telemetry percentages in a professional way.
+
+The simulation logic was written to mimic realistic drone behavior instead of using completely random values.
+
+The layout was structured using CSS Grid for a clean and organized interface.
+
+Conclusion
+
+This project demonstrates how a real-time drone telemetry monitoring system can be simulated using only front-end web technologies. It combines UI design, mathematical logic, and dynamic data visualization to create an interactive dashboard.
+
+The system is lightweight, easy to run, and clearly demonstrates understanding of telemetry concepts and real-time data simulation.
